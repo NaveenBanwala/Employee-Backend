@@ -1,7 +1,8 @@
 package com.naveenBanwala.springboot.demo.employeeproject.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.naveenBanwala.springboot.demo.employeeproject.dao.EmployeeDao;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+//import com.naveenBanwala.springboot.demo.employeeproject.dao.EmployeeDao;
 import com.naveenBanwala.springboot.demo.employeeproject.entity.Employee;
 import com.naveenBanwala.springboot.demo.employeeproject.service.EmployeeService;
 import org.springframework.web.bind.annotation.*;
@@ -77,11 +78,28 @@ public class RestControllerForEmployee {
              }
            Employee patchedEmployee = apply(patchPayLoad,tempEmployee);
 
-    }
+             Employee dbEmployee=employeeService.save(patchedEmployee);
 
+             return dbEmployee;
+
+    }
+      // Here we use patchpayload for partial json which is come from the user for updates
+    // and we have also Employee object json so we merge both and return their json value
+    //for further updates
     private Employee apply(Map<String,Object> patchPayLoad, Employee tempEmployee) {
 
-        // Convert Employee object to Jsom
+        // Convert Employee object to  a Json Object node
+        ObjectNode employeeNode = objectMapper.convertValue(tempEmployee , ObjectNode.class);
+
+        //Convert patchPayload object to json object node
+        ObjectNode patchNode = objectMapper.convertValue(patchPayLoad,ObjectNode.class);
+
+
+        //Merge the patch updates into the Employee node
+        employeeNode.setAll(patchNode);
+
+        return objectMapper.convertValue(employeeNode,Employee.class);
+
     }
 
 

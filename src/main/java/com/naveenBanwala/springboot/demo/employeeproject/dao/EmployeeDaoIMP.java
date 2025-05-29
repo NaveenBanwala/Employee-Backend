@@ -52,7 +52,8 @@ public class EmployeeDaoIMP implements EmployeeDao {
     }
     @Override
     public Employee save(Employee employee){
-     entityManager.persist(employee);
+        //Use merge instead of presist becoz it wiorks for POST/PUT/PATCH
+     entityManager.merge(employee);
         return employee;
     }
 }
