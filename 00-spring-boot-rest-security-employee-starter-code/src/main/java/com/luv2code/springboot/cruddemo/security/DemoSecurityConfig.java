@@ -6,10 +6,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+//import org.springframework.security.core.userdetails.User;
+//import org.springframework.security.core.userdetails.UserDetails;
+//import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+
+import javax.sql.DataSource;
 
 @EnableMethodSecurity // Add to a config class
 
@@ -18,33 +21,20 @@ public class DemoSecurityConfig {
 
     // ✅ 1. In-memory users
     @Bean
-    public InMemoryUserDetailsManager inMemoryUserDetailsManager() {
+    public JdbcUserDetailsManager UserDetailsManager(DataSource dataSource) {
 
-        UserDetails naveen = User.builder()
-                .username("Naveen")
-                .password("{noop}n123")
-                .roles("ADMIN","MANAGER")
-                .build();
+        //Add support for Jdbc -- no more hard coded users
+        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
 
-        UserDetails sweety = User.builder()
-                .username("Sweety")
-                .password("{noop}s123")
-                .roles("EMPLOYEE")
-                .build();
+        //define a query for retrieve a user by username
+        jdbcUserDetailsManager.setUsersByUsernameQuery(
+                "SELECT user_id, pw, active FROM members WHERE user_id=?");
 
-        UserDetails sachin = User.builder()
-                .username("Sachin")
-                .password("{noop}sa123")
-                .roles("EMPLOYEE")
-                .build();
+        jdbcUserDetailsManager.setAuthoritiesByUsernameQuery(
+                "SELECT user_id,role FROM roles WHERE user_id=?");
 
-        UserDetails mehak = User.builder()
-                .username("Mehak")
-                .password("{noop}m123")
-                .roles("EMPLOYEE")
-                .build();
+        return jdbcUserDetailsManager;
 
-        return new InMemoryUserDetailsManager(naveen, sweety, sachin, mehak);
     }
 
     // ✅ 2. Security filter chain
@@ -68,5 +58,4 @@ public class DemoSecurityConfig {
         return http.build();
     }
 }
-
 

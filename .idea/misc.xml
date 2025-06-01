@@ -5,6 +5,7 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/00-spring-boot-rest-security-employee-starter-code/pom.xml" />
       </list>
     </option>
   </component>
